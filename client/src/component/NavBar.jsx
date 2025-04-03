@@ -45,9 +45,8 @@ const Navbar = () => {
                 strokeLinejoin="round"
                 strokeWidth="2"
                 d="M4 12h16"
-                className={`transition-transform duration-300 ${
-                  isMenuOpen ? "rotate-90" : "rotate-0"
-                }`}
+                className={`transition-transform duration-300 ${isMenuOpen ? "rotate-90" : "rotate-0"
+                  }`}
               />
             </svg>
           </button>
@@ -60,11 +59,10 @@ const Navbar = () => {
               <li key={path}>
                 <Link
                   to={path}
-                  className={`px-5 py-2 rounded-md transition-all duration-300 text-base relative group ${
-                    location.pathname === path
-                      ? "bg-gray-200 font-semibold"
-                      : "hover:text-gray-600"
-                  }`}
+                  className={`px-5 py-2 rounded-md transition-all duration-300 text-base relative group ${location.pathname === path
+                    ? "bg-gray-200 font-semibold"
+                    : "hover:text-gray-600"
+                    }`}
                 >
                   {path === "/" ? "Home" : path.replace("/", "").charAt(0).toUpperCase() + path.slice(2)}
                   <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"></span>
@@ -73,20 +71,37 @@ const Navbar = () => {
             ))}
 
             {user && (
-              <li>
-                <Link
-                  to="/dashboard"
-                  className={`px-5 py-2 rounded-md transition-all duration-300 text-base relative group ${
-                    location.pathname === "/dashboard"
-                      ? "bg-gray-200 font-semibold"
-                      : "hover:text-gray-600"
-                  }`}
-                >
-                  Dashboard
-                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"></span>
-                </Link>
-              </li>
+                <li>
+                  <Link
+                    to="/dashboard"
+                    className={`px-5 py-2 rounded-md transition-all duration-300 text-base relative group ${location.pathname === "/dashboard"
+                        ? "bg-gray-200 font-semibold"
+                        : "hover:text-gray-600"
+                      }`}
+                  >
+                    Dashboard
+                    <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"></span>
+                  </Link>
+                </li>
             )}
+
+            { user && !user.payment && (
+              <li>
+              <Link
+                to="/payment"
+                className={`px-5 py-2 rounded-md transition-all duration-300 text-base relative group ${location.pathname === "/payment"
+                    ? "bg-gray-200 font-semibold"
+                    : "hover:text-gray-600"
+                  }`}
+              >
+                Payment
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"></span>
+              </Link>
+            </li>
+            )
+
+            }
+
           </ul>
 
           <Link
@@ -100,20 +115,18 @@ const Navbar = () => {
 
         {/* Mobile Dropdown Menu */}
         <div
-          className={`absolute top-16 mt-8 left-0 w-full px-4 ${
-            isMenuOpen ? "block" : "hidden"
-          } md:hidden bg-white shadow-lg transition-all duration-300 ease-in-out z-50`}
+          className={`absolute top-16 mt-8 left-0 w-full px-4 ${isMenuOpen ? "block" : "hidden"
+            } md:hidden bg-white shadow-lg transition-all duration-300 ease-in-out z-50`}
         >
           <ul className="flex flex-col space-y-4 text-lg items-center py-4">
             {["/", "/about", "/contact"].map((path) => (
               <li key={path} className="w-full text-center">
                 <Link
                   to={path}
-                  className={`px-5 py-2 w-full block rounded-md text-base transition-all duration-300 ${
-                    location.pathname === path
-                      ? "bg-gray-200 font-semibold"
-                      : "hover:text-gray-600"
-                  }`}
+                  className={`px-5 py-2 w-full block rounded-md text-base transition-all duration-300 ${location.pathname === path
+                    ? "bg-gray-200 font-semibold"
+                    : "hover:text-gray-600"
+                    }`}
                   onClick={toggleMenu}
                 >
                   {path === "/" ? "Home" : path.replace("/", "").charAt(0).toUpperCase() + path.slice(2)}
@@ -125,11 +138,10 @@ const Navbar = () => {
               <li className="w-full text-center">
                 <Link
                   to="/dashboard"
-                  className={`px-5 py-2 w-full block rounded-md text-base transition-all duration-300 ${
-                    location.pathname === "/dashboard"
-                      ? "bg-gray-200 font-semibold"
-                      : "hover:text-gray-600"
-                  }`}
+                  className={`px-5 py-2 w-full block rounded-md text-base transition-all duration-300 ${location.pathname === "/dashboard"
+                    ? "bg-gray-200 font-semibold"
+                    : "hover:text-gray-600"
+                    }`}
                   onClick={toggleMenu}
                 >
                   Dashboard

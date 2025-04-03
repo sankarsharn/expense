@@ -41,6 +41,28 @@ const userSlice = createSlice({
       state.loading = false;
       state.error = action.payload;
     },
+    paymentInitiated: (state) => {
+      state.loading = true;
+    },
+    paymentSuccess: (state) => {
+      state.loading = false;
+
+    },
+    paymentFailure: (state) => {
+      state.loading = false;
+    },
+    paymentVerified: (state) => {
+      state.loading = false;
+    },
+    paymentVerificationFailed: (state) => {
+      state.loading = false;
+    },
+    updatePaymentStatus: (state) => {
+      if (state.currentUser) {
+        state.currentUser.payment = true;
+      }
+    },
+    
   },
 });
 
@@ -52,6 +74,12 @@ export const {
   deleteUserStart,
   deleteUserSuccess,
   deleteUserFailure,
+  paymentInitiated,
+  paymentSuccess,
+  paymentFailure,
+  paymentVerified,
+  paymentVerificationFailed,
+  updatePaymentStatus,
 } = userSlice.actions;
 
 export default userSlice.reducer;

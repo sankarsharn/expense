@@ -10,8 +10,10 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
+import { useSelector } from "react-redux";
 
 function CategoryWise() {
+  const user = useSelector((state) => state.user.currentUser);
   const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
   const [category, setCategory] = useState("");
   const [categoryTotals, setCategoryTotals] = useState([]);
@@ -84,6 +86,8 @@ function CategoryWise() {
       });
       if (!res.ok) throw new Error("Failed to delete expense");
       setExpenses(expenses.filter((expense) => expense._id !== expenseId));
+      // Refetch category totals after deleting
+      fetchCategoryExpenses();
     } catch (error) {
       console.error(error);
       setError("Could not delete expense.");
@@ -101,136 +105,158 @@ function CategoryWise() {
     total: cat.totalAmount,
   }));
 
-  return (
-    <div className="max-w-lg mx-auto bg-white p-6 mt-10 shadow-md rounded-lg">
-      <h2 className="text-xl font-bold mb-4">Category-Wise Expenses</h2>
-
-      {/* Date Range Inputs */}
-      <div className="flex gap-4">
-        <div className="flex flex-col">
-          <label className="text-sm font-medium">Start Date</label>
-          <input
-            type="date"
-            name="startDate"
-            value={dateRange.startDate}
-            onChange={handleChange}
-            className="border rounded p-2"
-          />
+  if (user && user.payment) {
+    return (
+      <div className="max-w-4xl mx-auto bg-white p-6 mt-10 shadow-lg rounded-lg">
+        <h2 className="text-2xl font-bold mb-6 text-center">Category-Wise Expenses</h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          {/* Date Range Inputs */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Start Date</label>
+            <input
+              type="date"
+              name="startDate"
+              value={dateRange.startDate}
+              onChange={handleChange}
+              className="border rounded p-2 w-full focus:ring-2 focus:ring-black focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">End Date</label>
+            <input
+              type="date"
+              name="endDate"
+              value={dateRange.endDate}
+              onChange={handleChange}
+              className="border rounded p-2 w-full focus:ring-2 focus:ring-black focus:border-transparent"
+              min={dateRange.startDate}
+            />
+          </div>
         </div>
-        <div className="flex flex-col">
-          <label className="text-sm font-medium">End Date</label>
-          <input
-            type="date"
-            name="endDate"
-            value={dateRange.endDate}
-            onChange={handleChange}
-            className="border rounded p-2"
-            min={dateRange.startDate}
-          />
-        </div>
-      </div>
 
-      {/* Category Selection */}
-      <div className="mt-4">
-        <label className="text-sm font-medium">Category (Optional)</label>
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="border rounded p-2 w-full"
+        {/* Category Selection */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium mb-1">Category (Optional)</label>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="border rounded p-2 w-full focus:ring-2 focus:ring-black focus:border-transparent"
+          >
+            <option value="">All Categories</option>
+            <option value="Food">Food</option>
+            <option value="Transport">Transport</option>
+            {categories.map((cat) =>
+              cat !== "Food" && cat !== "Transport" ? (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ) : null
+            )}
+          </select>
+        </div>
+
+        {/* Fetch Button */}
+        <button
+          onClick={fetchCategoryExpenses}
+          className="w-full py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 transition duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          disabled={loading}
         >
-          <option value="">All Categories</option>
-          <option value="Food">Food</option>
-          <option value="Transport">Transport</option>
-          {categories.map((cat) =>
-            cat !== "Food" && cat !== "Transport" ? (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ) : null
-          )}
-        </select>
-      </div>
+          {loading ? "Fetching..." : "Get Category Expenses"}
+        </button>
 
-      {/* Fetch Button */}
-      <button
-        onClick={fetchCategoryExpenses}
-        className="w-full mt-4 bg-black text-white py-2 rounded hover:bg-gray-900 transition disabled:bg-gray-400"
-        disabled={loading}
-      >
-        {loading ? "Fetching..." : "Get Category Expenses"}
-      </button>
+        {/* Error Message */}
+        {error && (
+          <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-500 text-sm">{error}</p>
+          </div>
+        )}
 
-      {/* Error Message */}
-      {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-
-      {/* Bar Chart for Category Totals */}
-      {chartData.length > 0 && (
-        <div className="mt-6">
-          <h3 className="text-lg font-semibold mb-4">Expenses by Category</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart
-              data={chartData}
-              margin={{
-                top: 5,
-                right: 30,
-                left: 20,
-                bottom: 5,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="total" fill="#8884d8" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      )}
-
-      {/* Detailed Expenses */}
-      {expenses.length > 0 && (
-        <div className="mt-4">
-          <h3 className="text-lg font-semibold">Detailed Expenses:</h3>
-          <ul className="mt-2 space-y-3">
-            {expenses.map((expense) => (
-              <li
-                key={expense._id}
-                className="p-4 border rounded-lg bg-gray-50 shadow-md flex justify-between items-center"
+        {/* Bar Chart for Category Totals */}
+        {chartData.length > 0 && (
+          <div className="mt-8 p-4 border rounded-lg bg-gray-50">
+            <h3 className="text-lg font-semibold mb-4">Expenses by Category</h3>
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart
+                data={chartData}
+                margin={{
+                  top: 10,
+                  right: 30,
+                  left: 20,
+                  bottom: 20,
+                }}
               >
-                <div>
-                  <div className="flex justify-between">
-                    <span className="font-bold text-lg">₹{expense.amount}</span>
-                    <span className="text-sm text-gray-500">
-                      {new Date(expense.date).toLocaleDateString()}
-                    </span>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                <XAxis dataKey="name" tick={{ fill: "#333" }} />
+                <YAxis tick={{ fill: "#333" }} />
+                <Tooltip cursor={{ fill: "rgba(136, 132, 216, 0.1)" }} />
+                <Legend wrapperStyle={{ paddingTop: 10 }} />
+                <Bar dataKey="total" fill="#8884d8" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+
+        {/* Detailed Expenses */}
+        {expenses.length > 0 && (
+          <div className="mt-8">
+            <h3 className="text-lg font-semibold mb-4">Detailed Expenses</h3>
+            <div className="space-y-4">
+              {expenses.map((expense) => (
+                <div
+                  key={expense._id}
+                  className="p-4 border rounded-lg bg-gray-50 shadow-sm hover:shadow-md transition duration-200"
+                >
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="font-bold text-lg">₹{expense.amount.toLocaleString()}</span>
+                        <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                          {new Date(expense.date).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <p className="text-gray-700">{expense.description}</p>
+                      <div className="mt-2">
+                        <span className="inline-block bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700">
+                          {expense.category}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex gap-3 ml-4">
+                      <button
+                        onClick={() => handleEdit(expense)}
+                        className="text-blue-500 hover:text-blue-700 p-1"
+                        title="Edit expense"
+                      >
+                        <AiOutlineEdit size={20} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(expense._id)}
+                        className="text-red-500 hover:text-red-700 p-1"
+                        title="Delete expense"
+                      >
+                        <AiOutlineDelete size={20} />
+                      </button>
+                    </div>
                   </div>
-                  <p className="text-gray-700 mt-1">{expense.description}</p>
-                  <p className="text-sm text-gray-600">
-                    Category:{" "}
-                    <span className="font-semibold">{expense.category}</span>
-                  </p>
                 </div>
-                {/* Icons for Edit and Delete */}
-                <div className="flex gap-3">
-                  <AiOutlineEdit
-                    className="text-blue-500 cursor-pointer hover:text-blue-700"
-                    size={20}
-                    onClick={() => handleEdit(expense)}
-                  />
-                  <AiOutlineDelete
-                    className="text-red-500 cursor-pointer hover:text-red-700"
-                    size={20}
-                    onClick={() => handleDelete(expense._id)}
-                  />
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-    </div>
-  );
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  } else {
+    return (
+      <div className="max-w-lg mx-auto bg-white p-6 mt-10 shadow-md rounded-lg text-center">
+        <h2 className="text-xl font-bold mb-4">Premium Feature</h2>
+        <p>This is a premium feature. Please make a payment to access it.</p>
+        <button className="mt-4 bg-black text-white py-2 px-6 rounded hover:bg-gray-900 transition">
+          Upgrade Now
+        </button>
+      </div>
+    );
+  }
 }
 
 export default CategoryWise;

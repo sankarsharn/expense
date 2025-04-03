@@ -15,6 +15,7 @@ import Chatbot from "./pages/Chatbot"
 import Projections from "./pages/Projections"
 import ExpenseHistory from "./pages/ExpenseHistory"
 import CategoryWise from "./pages/CategoryWise"
+import Payment from "./component/Payments"
 function App() {
   
 
@@ -34,6 +35,8 @@ function App() {
           <Route path="/projections" element={<Projections/>}/>
           <Route path="/expenseHistory" element={<ExpenseHistory/>}/>
           <Route path="/categoryWise" element={<CategoryWise/>}/>
+          <Route path="/payment" element={<Payment/>}/>
+          {/* Add more routes as needed */}
         </Routes>
         <Footer/>
       </BrowserRouter>

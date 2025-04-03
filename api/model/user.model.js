@@ -14,6 +14,10 @@ const userSchema = mongoose.Schema({
         type: String,
         required: true,
         unique: true
+    },
+    payment: {
+        type: Boolean,
+        default: false
     }
 } , {timestamps : true})
 

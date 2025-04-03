@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import authRoute from "./routes/auth.route.js";
 import formRoute from "./routes/form.route.js";
 import morgan from "morgan";
+import paymentRoute from "./routes/payment.route.js";
 
 const app = express();
 dotenv.config();
@@ -31,6 +32,7 @@ console.error("Error connecting to MongoDB:", error);
 
 app.use("/api/auth" , authRoute);
 app.use("/api/form" , formRoute);
+app.use("/api/payment", paymentRoute);
 
 app.use((err, req, res, next) => {
     const statusCode = err.statusCode || 500;
